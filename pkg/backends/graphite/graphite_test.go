@@ -28,20 +28,20 @@ func TestPreparePayload(t *testing.T) {
 			config: &Config{
 				// Use defaults
 			},
-			result: []byte("stats_counts.stat1 5 1234\n" +
-				"stats.stat1 1.100000 1234\n" +
-				"stats.timers.t1.lower 0.000000 1234\n" +
-				"stats.timers.t1.upper 0.000000 1234\n" +
-				"stats.timers.t1.count 0 1234\n" +
-				"stats.timers.t1.count_ps 0.000000 1234\n" +
-				"stats.timers.t1.mean 0.000000 1234\n" +
-				"stats.timers.t1.median 0.000000 1234\n" +
-				"stats.timers.t1.std 0.000000 1234\n" +
-				"stats.timers.t1.sum 0.000000 1234\n" +
-				"stats.timers.t1.sum_squares 0.000000 1234\n" +
-				"stats.timers.t1.count_90 90.000000 1234\n" +
-				"stats.gauges.g1 3.000000 1234\n" +
-				"stats.sets.users 3 1234\n"),
+			result: []byte("stats_counts.stat1;tag1 5 1234\n" +
+				"stats.stat1;tag1 1.100000 1234\n" +
+				"stats.timers.t1.lower;key=value 0.000000 1234\n" +
+				"stats.timers.t1.upper;key=value 0.000000 1234\n" +
+				"stats.timers.t1.count;key=value 0 1234\n" +
+				"stats.timers.t1.count_ps;key=value 0.000000 1234\n" +
+				"stats.timers.t1.mean;key=value 0.000000 1234\n" +
+				"stats.timers.t1.median;key=value 0.000000 1234\n" +
+				"stats.timers.t1.std;key=value 0.000000 1234\n" +
+				"stats.timers.t1.sum;key=value 0.000000 1234\n" +
+				"stats.timers.t1.sum_squares;key=value 0.000000 1234\n" +
+				"stats.timers.t1.count_90;key=value 90.000000 1234\n" +
+				"stats.gauges.g1;baz 3.000000 1234\n" +
+				"stats.sets.users;baz 3 1234\n"),
 		},
 		{
 			config: &Config{
@@ -53,20 +53,20 @@ func TestPreparePayload(t *testing.T) {
 				GlobalSuffix:    addr("gs"),
 				LegacyNamespace: addrB(true),
 			},
-			result: []byte("stats_counts.stat1.gs 5 1234\n" +
-				"stats.stat1.gs 1.100000 1234\n" +
-				"stats.timers.t1.lower.gs 0.000000 1234\n" +
-				"stats.timers.t1.upper.gs 0.000000 1234\n" +
-				"stats.timers.t1.count.gs 0 1234\n" +
-				"stats.timers.t1.count_ps.gs 0.000000 1234\n" +
-				"stats.timers.t1.mean.gs 0.000000 1234\n" +
-				"stats.timers.t1.median.gs 0.000000 1234\n" +
-				"stats.timers.t1.std.gs 0.000000 1234\n" +
-				"stats.timers.t1.sum.gs 0.000000 1234\n" +
-				"stats.timers.t1.sum_squares.gs 0.000000 1234\n" +
-				"stats.timers.t1.count_90.gs 90.000000 1234\n" +
-				"stats.gauges.g1.gs 3.000000 1234\n" +
-				"stats.sets.users.gs 3 1234\n"),
+			result: []byte("stats_counts.stat1.gs;tag1 5 1234\n" +
+				"stats.stat1.gs;tag1 1.100000 1234\n" +
+				"stats.timers.t1.lower.gs;key=value 0.000000 1234\n" +
+				"stats.timers.t1.upper.gs;key=value 0.000000 1234\n" +
+				"stats.timers.t1.count.gs;key=value 0 1234\n" +
+				"stats.timers.t1.count_ps.gs;key=value 0.000000 1234\n" +
+				"stats.timers.t1.mean.gs;key=value 0.000000 1234\n" +
+				"stats.timers.t1.median.gs;key=value 0.000000 1234\n" +
+				"stats.timers.t1.std.gs;key=value 0.000000 1234\n" +
+				"stats.timers.t1.sum.gs;key=value 0.000000 1234\n" +
+				"stats.timers.t1.sum_squares.gs;key=value 0.000000 1234\n" +
+				"stats.timers.t1.count_90.gs;key=value 90.000000 1234\n" +
+				"stats.gauges.g1.gs;baz 3.000000 1234\n" +
+				"stats.sets.users.gs;baz 3 1234\n"),
 		},
 		{
 			config: &Config{
@@ -78,20 +78,20 @@ func TestPreparePayload(t *testing.T) {
 				GlobalSuffix:    addr("gs"),
 				LegacyNamespace: addrB(false),
 			},
-			result: []byte("gp.pc.stat1.count.gs 5 1234\n" +
-				"gp.pc.stat1.rate.gs 1.100000 1234\n" +
-				"gp.pt.t1.lower.gs 0.000000 1234\n" +
-				"gp.pt.t1.upper.gs 0.000000 1234\n" +
-				"gp.pt.t1.count.gs 0 1234\n" +
-				"gp.pt.t1.count_ps.gs 0.000000 1234\n" +
-				"gp.pt.t1.mean.gs 0.000000 1234\n" +
-				"gp.pt.t1.median.gs 0.000000 1234\n" +
-				"gp.pt.t1.std.gs 0.000000 1234\n" +
-				"gp.pt.t1.sum.gs 0.000000 1234\n" +
-				"gp.pt.t1.sum_squares.gs 0.000000 1234\n" +
-				"gp.pt.t1.count_90.gs 90.000000 1234\n" +
-				"gp.pg.g1.gs 3.000000 1234\n" +
-				"gp.ps.users.gs 3 1234\n"),
+			result: []byte("gp.pc.stat1.count.gs;tag1 5 1234\n" +
+				"gp.pc.stat1.rate.gs;tag1 1.100000 1234\n" +
+				"gp.pt.t1.lower.gs;key=value 0.000000 1234\n" +
+				"gp.pt.t1.upper.gs;key=value 0.000000 1234\n" +
+				"gp.pt.t1.count.gs;key=value 0 1234\n" +
+				"gp.pt.t1.count_ps.gs;key=value 0.000000 1234\n" +
+				"gp.pt.t1.mean.gs;key=value 0.000000 1234\n" +
+				"gp.pt.t1.median.gs;key=value 0.000000 1234\n" +
+				"gp.pt.t1.std.gs;key=value 0.000000 1234\n" +
+				"gp.pt.t1.sum.gs;key=value 0.000000 1234\n" +
+				"gp.pt.t1.sum_squares.gs;key=value 0.000000 1234\n" +
+				"gp.pt.t1.count_90.gs;key=value 90.000000 1234\n" +
+				"gp.pg.g1.gs;baz 3.000000 1234\n" +
+				"gp.ps.users.gs;baz 3 1234\n"),
 		},
 	}
 	for i, td := range input {
@@ -166,7 +166,7 @@ func metrics() *gostatsd.MetricMap {
 		},
 		Timers: gostatsd.Timers{
 			"t1": map[string]gostatsd.Timer{
-				"baz": {
+				"key:value": {
 					Values: []float64{10},
 					Percentiles: gostatsd.Percentiles{
 						gostatsd.Percentile{Float: 90, Str: "count_90"},

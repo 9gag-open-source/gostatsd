@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -103,54 +104,54 @@ func (client *Client) preparePayload(metrics *gostatsd.MetricMap, ts time.Time) 
 	if client.legacyNamespace {
 		metrics.Counters.Each(func(key, tagsKey string, counter gostatsd.Counter) {
 			k := sk(key)
-			fmt.Fprintf(buf, "stats_counts.%s%s %d %d\n", k, client.globalSuffix, counter.Value, now)                   // #nosec
-			fmt.Fprintf(buf, "%s%s%s %f %d\n", client.counterNamespace, k, client.globalSuffix, counter.PerSecond, now) // #nosec
+			fmt.Fprintf(buf, "stats_counts.%s%s%s %d %d\n", k, client.globalSuffix, formatTags(tagsKey), counter.Value, now)                   // #nosec
+			fmt.Fprintf(buf, "%s%s%s%s %f %d\n", client.counterNamespace, k, client.globalSuffix, formatTags(tagsKey), counter.PerSecond, now) // #nosec
 		})
 	} else {
 		metrics.Counters.Each(func(key, tagsKey string, counter gostatsd.Counter) {
 			k := sk(key)
-			fmt.Fprintf(buf, "%s%s.count%s %d %d\n", client.counterNamespace, k, client.globalSuffix, counter.Value, now)    // #nosec
-			fmt.Fprintf(buf, "%s%s.rate%s %f %d\n", client.counterNamespace, k, client.globalSuffix, counter.PerSecond, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.count%s%s %d %d\n", client.counterNamespace, k, client.globalSuffix, formatTags(tagsKey), counter.Value, now)    // #nosec
+			fmt.Fprintf(buf, "%s%s.rate%s%s %f %d\n", client.counterNamespace, k, client.globalSuffix, formatTags(tagsKey), counter.PerSecond, now) // #nosec
 		})
 	}
 	metrics.Timers.Each(func(key, tagsKey string, timer gostatsd.Timer) {
 		k := sk(key)
 		if !client.disabledSubtypes.Lower {
-			fmt.Fprintf(buf, "%s%s.lower%s %f %d\n", client.timerNamespace, k, client.globalSuffix, timer.Min, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.lower%s%s %f %d\n", client.timerNamespace, k, client.globalSuffix, formatTags(tagsKey), timer.Min, now) // #nosec
 		}
 		if !client.disabledSubtypes.Upper {
-			fmt.Fprintf(buf, "%s%s.upper%s %f %d\n", client.timerNamespace, k, client.globalSuffix, timer.Max, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.upper%s%s %f %d\n", client.timerNamespace, k, client.globalSuffix, formatTags(tagsKey), timer.Max, now) // #nosec
 		}
 		if !client.disabledSubtypes.Count {
-			fmt.Fprintf(buf, "%s%s.count%s %d %d\n", client.timerNamespace, k, client.globalSuffix, timer.Count, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.count%s%s %d %d\n", client.timerNamespace, k, client.globalSuffix, formatTags(tagsKey), timer.Count, now) // #nosec
 		}
 		if !client.disabledSubtypes.CountPerSecond {
-			fmt.Fprintf(buf, "%s%s.count_ps%s %f %d\n", client.timerNamespace, k, client.globalSuffix, timer.PerSecond, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.count_ps%s%s %f %d\n", client.timerNamespace, k, client.globalSuffix, formatTags(tagsKey), timer.PerSecond, now) // #nosec
 		}
 		if !client.disabledSubtypes.Mean {
-			fmt.Fprintf(buf, "%s%s.mean%s %f %d\n", client.timerNamespace, k, client.globalSuffix, timer.Mean, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.mean%s%s %f %d\n", client.timerNamespace, k, client.globalSuffix, formatTags(tagsKey), timer.Mean, now) // #nosec
 		}
 		if !client.disabledSubtypes.Median {
-			fmt.Fprintf(buf, "%s%s.median%s %f %d\n", client.timerNamespace, k, client.globalSuffix, timer.Median, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.median%s%s %f %d\n", client.timerNamespace, k, client.globalSuffix, formatTags(tagsKey), timer.Median, now) // #nosec
 		}
 		if !client.disabledSubtypes.StdDev {
-			fmt.Fprintf(buf, "%s%s.std%s %f %d\n", client.timerNamespace, k, client.globalSuffix, timer.StdDev, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.std%s%s %f %d\n", client.timerNamespace, k, client.globalSuffix, formatTags(tagsKey), timer.StdDev, now) // #nosec
 		}
 		if !client.disabledSubtypes.Sum {
-			fmt.Fprintf(buf, "%s%s.sum%s %f %d\n", client.timerNamespace, k, client.globalSuffix, timer.Sum, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.sum%s%s %f %d\n", client.timerNamespace, k, client.globalSuffix, formatTags(tagsKey), timer.Sum, now) // #nosec
 		}
 		if !client.disabledSubtypes.SumSquares {
-			fmt.Fprintf(buf, "%s%s.sum_squares%s %f %d\n", client.timerNamespace, k, client.globalSuffix, timer.SumSquares, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.sum_squares%s%s %f %d\n", client.timerNamespace, k, client.globalSuffix, formatTags(tagsKey), timer.SumSquares, now) // #nosec
 		}
 		for _, pct := range timer.Percentiles {
-			fmt.Fprintf(buf, "%s%s.%s%s %f %d\n", client.timerNamespace, k, pct.Str, client.globalSuffix, pct.Float, now) // #nosec
+			fmt.Fprintf(buf, "%s%s.%s%s%s %f %d\n", client.timerNamespace, k, pct.Str, client.globalSuffix, formatTags(tagsKey), pct.Float, now) // #nosec
 		}
 	})
 	metrics.Gauges.Each(func(key, tagsKey string, gauge gostatsd.Gauge) {
-		fmt.Fprintf(buf, "%s%s%s %f %d\n", client.gaugesNamespace, sk(key), client.globalSuffix, gauge.Value, now) // #nosec
+		fmt.Fprintf(buf, "%s%s%s%s %f %d\n", client.gaugesNamespace, sk(key), client.globalSuffix, formatTags(tagsKey), gauge.Value, now) // #nosec
 	})
 	metrics.Sets.Each(func(key, tagsKey string, set gostatsd.Set) {
-		fmt.Fprintf(buf, "%s%s%s %d %d\n", client.setsNamespace, sk(key), client.globalSuffix, len(set.Values), now) // #nosec
+		fmt.Fprintf(buf, "%s%s%s%s %d %d\n", client.setsNamespace, sk(key), client.globalSuffix, formatTags(tagsKey), len(set.Values), now) // #nosec
 	})
 	return buf
 }
@@ -301,4 +302,14 @@ func getSubViper(v *viper.Viper, key string) *viper.Viper {
 		n = viper.New()
 	}
 	return n
+}
+
+func formatTags(t string) string {
+	if t == "" {
+		return t
+	}
+
+	t = strings.Replace(t, ":", "=", -1)
+	t = strings.Replace(t, ",", ";", -1)
+	return fmt.Sprintf(";%s", t)
 }
